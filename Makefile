@@ -1,22 +1,23 @@
 .PHONY: deps clean build
 
 deps:
-	go get -u ./...
+	dep ensure
+#	go get -u ./...
 
 clean: 
-	rm -rf ./cloudtrailToUnomaly/* ./build/*
+	rm -rf ./build/*
 	
 build:
-	GOOS=linux GOARCH=amd64 go build -o build/cloudtrail-lambda-unomaly-blog ./cloudtrailToUnomaly/main.go
+	GOOS=linux GOARCH=amd64 go build -o build/cloudtrail-lambda-unomaly-auditusecase ./cloudtrailToUnomaly/main.go
 
 package:
 	sam package \
 		--template-file template.yaml \
 		--output-template-file packaged.yaml \
-		--s3-bucket unomaly-lambda-functions
+		--s3-bucket unomaly-lambda-functions-london
 
 deploy:
 	sam deploy \
 		--template-file packaged.yaml \
-		--stack-name cloudtrail-lambda-unomaly-blog \
+		--stack-name cloudtrail-lambda-unomaly-auditusecase \
 		--capabilities CAPABILITY_IAM

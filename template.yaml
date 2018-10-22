@@ -11,8 +11,7 @@ Resources:
   CloudTrailS3ToUnomalyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      # CodeUri: ./cloudtrailToUnomaly/
-      Handler: build/cloudtrail-lambda-unomaly-blog
+      Handler: build/cloudtrail-lambda-unomaly-auditusecase
       Runtime: go1.x
       Events:
         CloudTrailS3WriteEvent:
@@ -22,8 +21,8 @@ Resources:
             Bucket: !Ref S3CloudTrailBucket
       Environment:
         Variables:
-          UNOMALY_API_ENDPOINT: http://unomaly.internal/v1/batch
-          UNOMALY_BATCH_SIZE: 100
+          UNOMALY_API_ENDPOINT: http://x.x.x.x/v1/batch
+          UNOMALY_BATCH_SIZE: 1
       Policies:
         Statement:
           -
@@ -31,12 +30,52 @@ Resources:
             Action:
               - s3:GetObject
             Resource:
-              - "arn:aws:s3:::cloudtrail-bucket-unomaly-blog/*"
+              - "arn:aws:s3:::cloudtrail-bucket-unomaly-auditusecase/*"
+      VpcConfig:
+        SubnetIds:
+          - subnet-abcdef
+          - subnet-abcdef
+        SecurityGroupIds:
+          - sg-abcdef
+      Role: !GetAtt FunctionRole.Arn
+  
+  FunctionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: FunctionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ec2:CreateNetworkInterface'
+                  - 'ec2:DescribeNetworkInterfaces'
+                  - 'ec2:DeleteNetworkInterface'
+                Resource: '*'
+              -
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource:
+                  - "arn:aws:s3:::cloudtrail-bucket-unomaly-auditusecase/*"
   
   S3CloudTrailBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: cloudtrail-bucket-unomaly-blog
+      BucketName: cloudtrail-bucket-unomaly-auditusecase
   
   S3CloudTrailBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -66,8 +105,9 @@ Resources:
   UnomalyTrail:
     Type: AWS::CloudTrail::Trail
     Properties:
-      IsMultiRegionTrail: false
+      IsMultiRegionTrail: true
+      IncludeGlobalServiceEvents: true
       S3BucketName: !Ref S3CloudTrailBucket
-      TrailName: UnomalyTrailBlog
+      TrailName: UnomalyTrailAuditUseCase
       IsLogging: true
     DependsOn: S3CloudTrailBucketPolicy

@@ -60,9 +60,21 @@
   packages = ["."]
   revision = "0b12d6b5"
 
+[[projects]]
+  name = "github.com/tidwall/gjson"
+  packages = ["."]
+  revision = "1e3f6aeaa5bad08d777ea7807b279a07885dd8b2"
+  version = "v1.1.3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/tidwall/match"
+  packages = ["."]
+  revision = "1731857f09b1f38450e2c12409748407822dc6be"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fafd3b10d669be59672c1864165d47e8dcc2b4088dfc847b2b6cda67003010d4"
+  inputs-digest = "9d988e51b2da2cd287c20199aa08ec6e7672aabc888515e6d705d519a316ec0e"
   solver-name = "gps-cdcl"
   solver-version = 1
